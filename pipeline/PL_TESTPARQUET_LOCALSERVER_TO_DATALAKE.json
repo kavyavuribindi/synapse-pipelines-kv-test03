@@ -1,0 +1,200 @@
+{
+	"name": "PL_TESTPARQUET_LOCALSERVER_TO_DATALAKE",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_LOOKUP_TABLE_NAMES",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT S.NAME AS SCHEMA_NAME,\n       T.NAME AS TABLE_NAME\nFROM SYS.SCHEMAS AS S\nINNER JOIN SYS.TABLES AS T\n    ON S.SCHEMA_ID=T.SCHEMA_ID;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_ITEM_CATALOG_CDC",
+						"type": "DatasetReference",
+						"parameters": {
+							"dbName": "sample",
+							"userName": "c2suser",
+							"password": "C2S@20232023!",
+							"schemaName": " ",
+							"tableName": " "
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ACT_FOR_EACH_TABLE",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_LOOKUP_TABLE_NAMES",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ACT_LOOKUP_TABLE_NAMES').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "ACT_COPY_TABLES",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@{item().SCHEMA_NAME}.@{item().TABLE_NAME}"
+								},
+								{
+									"name": "Destination",
+									"value": "data//@{concat(item().SCHEMA_NAME,'.',item().TABLE_NAME,'.csv')}"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT * FROM ',item().SCHEMA_NAME,'.',item().TABLE_NAME)",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "ParquetSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "ParquetWriteSettings"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_ITEM_CATALOG_CDC",
+									"type": "DatasetReference",
+									"parameters": {
+										"dbName": "sample",
+										"userName": "c2suser",
+										"password": "C2S@20232023!",
+										"schemaName": {
+											"value": "@item().SCHEMA_NAME",
+											"type": "Expression"
+										},
+										"tableName": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_PARQUET_SAKVTEST03",
+									"type": "DatasetReference",
+									"parameters": {
+										"container_name": {
+											"value": "@pipeline().parameters.param_container_name",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@concat(item().SCHEMA_NAME,'.',item().TABLE_NAME)",
+											"type": "Expression"
+										},
+										"parquet_folder_name": {
+											"value": "@pipeline().parameters.param_parquet_folder_name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "DF_PARQUET_TO_DELTA",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "ACT_COPY_TABLES",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "DF_PARQUET_TO_DELTA",
+									"type": "DataFlowReference"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"param_parquet_folder_name": {
+				"type": "string",
+				"defaultValue": "parquetfiles"
+			},
+			"param_delta_folder_name": {
+				"type": "string",
+				"defaultValue": "deltafiles"
+			},
+			"param_container_name": {
+				"type": "string",
+				"defaultValue": "datareplication"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-03T22:09:17Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

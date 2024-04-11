@@ -1,0 +1,149 @@
+{
+	"name": "PL_LOCALSERVER_TO_DATALAKE",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_LOOKUP_TABLE_NAMES",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT S.NAME AS SCHEMA_NAME,\n       T.NAME AS TABLE_NAME\nFROM SYS.SCHEMAS AS S\nINNER JOIN SYS.TABLES AS T\n    ON S.SCHEMA_ID=T.SCHEMA_ID;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_ITEM_CATALOG_CDC",
+						"type": "DatasetReference",
+						"parameters": {
+							"dbName": "db_sample_cdc",
+							"userName": "c2suser",
+							"password": "C2S@20232023!",
+							"schemaName": " ",
+							"tableName": " "
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ACT_FOR_EACH_TABLE",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_LOOKUP_TABLE_NAMES",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ACT_LOOKUP_TABLE_NAMES').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "ACT_COPY_TABLES",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@{item().SCHEMA_NAME}.@{item().TABLE_NAME}"
+								},
+								{
+									"name": "Destination",
+									"value": "data//@{concat(item().SCHEMA_NAME,'.',item().TABLE_NAME,'.csv')}"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT * FROM ',item().SCHEMA_NAME,'.',item().TABLE_NAME)",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".csv"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_ITEM_CATALOG_CDC",
+									"type": "DatasetReference",
+									"parameters": {
+										"dbName": "db_sample_cdc",
+										"userName": "c2suser",
+										"password": "C2S@20232023!",
+										"schemaName": {
+											"value": "@item().SCHEMA_NAME",
+											"type": "Expression"
+										},
+										"tableName": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_SAKVTEST03",
+									"type": "DatasetReference",
+									"parameters": {
+										"fileName": {
+											"value": "@concat(item().SCHEMA_NAME,'.',item().TABLE_NAME,'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-12-15T16:34:41Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

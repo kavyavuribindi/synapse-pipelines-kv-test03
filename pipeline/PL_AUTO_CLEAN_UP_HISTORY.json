@@ -1,0 +1,562 @@
+{
+	"name": "PL_AUTO_CLEAN_UP_HISTORY",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_COPY_AUTO_CLEAN_UP_syscommittab",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT * FROM dbo.MSChange_tracking_history where table_name in ('syscommittab') ORDER BY start_time DESC;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": " ",
+							"PARAM_DS_TABLE_NAME": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": "AUTO_CLEAN_UP_HISTORY_syscommittab"
+						}
+					}
+				]
+			},
+			{
+				"name": "ACT_COPY_AUTO_CLEAN_UP_ADDRESS",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT * FROM dbo.MSChange_tracking_history where table_name in ('ADDRESS') ORDER BY start_time DESC;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": " ",
+							"PARAM_DS_TABLE_NAME": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": "AUTO_CLEAN_UP_HISTORY_ADDRESS"
+						}
+					}
+				]
+			},
+			{
+				"name": "ACT_COPY_AUTO_CLEAN_UP_INVENTLOCATION1",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT * FROM dbo.MSChange_tracking_history where table_name in ('INVENTLOCATION') ORDER BY start_time DESC;\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "internal_table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "table_name",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							},
+							{
+								"source": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "start_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								},
+								"sink": {
+									"name": "end_time",
+									"type": "DateTime",
+									"physicalType": "datetime"
+								}
+							},
+							{
+								"source": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "rows_cleaned_up",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "cleanup_version",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "comments",
+									"type": "String",
+									"physicalType": "nvarchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": " ",
+							"PARAM_DS_TABLE_NAME": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": "AUTO_CLEAN_UP_HISTORY_INVENTLOCATION"
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"PARAM_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "localhost"
+			},
+			"PARAM_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "c2suser"
+			},
+			"PARAM_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "C2S@20232023!"
+			},
+			"PARAM_DATABASE_NAME": {
+				"type": "string",
+				"defaultValue": "PROD_R"
+			},
+			"PARAM_SCHEMA_NAME": {
+				"type": "string",
+				"defaultValue": "dbo"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-25T07:00:17Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

@@ -1,0 +1,45 @@
+{
+	"name": "DS_ADLS_YKP",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_YKP",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "inventtrans.csv",
+				"fileSystem": "fdr"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "DATABASE_NAME",
+				"type": "String"
+			},
+			{
+				"name": "SCHEMA_NAME",
+				"type": "String"
+			},
+			{
+				"name": "TABLE_NAME",
+				"type": "String"
+			},
+			{
+				"name": "SPLIT_TABLE",
+				"type": "String"
+			},
+			{
+				"name": "DATE_COLUMN_NAME",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

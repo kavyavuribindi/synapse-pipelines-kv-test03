@@ -1,0 +1,57 @@
+{
+	"name": "DF_PARQUET_TO_DELTA",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_ADLS_DATA_REPLICATION",
+						"type": "DatasetReference"
+					},
+					"name": "PARQUETFILE"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "LS_ADLS_DATA_REPLICATION",
+						"type": "LinkedServiceReference"
+					},
+					"name": "DELTAFILE"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"parameters{",
+				"     PARAM_DF_DELTA_FOLDER_NAME as string,",
+				"     PARAM_DF_CONTAINER_NAME as string,",
+				"     PARAM_DF_FILE_NAME as string,",
+				"     PARAM_DF_DB_FOLDER_NAME as string",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PARQUETFILE",
+				"PARQUETFILE sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: ($PARAM_DF_CONTAINER_NAME),",
+				"     folderPath: (concat($PARAM_DF_DELTA_FOLDER_NAME,'/',$PARAM_DF_DB_FOLDER_NAME,'/',$PARAM_DF_FILE_NAME)),",
+				"     mergeSchema: true,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DELTAFILE"
+			]
+		}
+	}
+}

@@ -1,0 +1,253 @@
+{
+	"name": "PL_SPLIT_TABLES",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_COPY_HISTORY_RECORDS",
+				"description": "Copy history records to history tables.",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "@{pipeline().parameters.PARAM_SCHEMA_NAME}.@{pipeline().parameters.PARAM_TABLE_NAME}"
+					},
+					{
+						"name": "Destination",
+						"value": "@{pipeline().parameters.PARAM_SCHEMA_NAME}.@{concat(pipeline().parameters.PARAM_TABLE_NAME,'_history')}"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[SelectDataForHistory]",
+						"storedProcedureParameters": {
+							"CutoffDate": {
+								"type": "DateTime",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_CUT_OFF_DATE",
+									"type": "Expression"
+								}
+							},
+							"DateColumnName": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_DATE_COLUMN_NAME",
+									"type": "Expression"
+								}
+							},
+							"TableName": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "@{concat('TRUNCATE TABLE ',\n         pipeline().parameters.PARAM_SCHEMA_NAME,\n         '.',\n         pipeline().parameters.PARAM_TABLE_NAME,\n         '_history')}",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_ASQL_DATA_REPLICATION",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_ASQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_USERNAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+								"type": "Expression"
+							},
+							"DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"DS_TABLE_NAME": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASQL_DATA_REPLICATION",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_ASQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_USERNAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+								"type": "Expression"
+							},
+							"DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"DS_TABLE_NAME": {
+								"value": "@concat(pipeline().parameters.PARAM_TABLE_NAME,'_history')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "SP_DELETE_HISTORY_RECORDS",
+				"description": "Delete the copied history records in main tables.",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ACT_COPY_HISTORY_RECORDS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[DeleteOldRecords]",
+					"storedProcedureParameters": {
+						"CutoffDate": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_CUT_OFF_DATE",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"DateColumnName": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_DATE_COLUMN_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TableName": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_ASQL_DATA_REPLICATION",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"PARAM_LS_AZURE_SQL_USERNAME": {
+							"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_ASQL_PWD": {
+							"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+							"type": "Expression"
+						},
+						"PARAM_LS_AZURE_SQL_SERVER_NAME": {
+							"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_AZURE_SQL_DATABASE_NAME": {
+							"value": "@pipeline().parameters.PARAM_AZURE_SQL_DATABASE_NAME",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"PARAM_AZURE_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "test-db-server-01.database.windows.net"
+			},
+			"PARAM_AZURE_SQL_USERNAME": {
+				"type": "string",
+				"defaultValue": "demouser"
+			},
+			"PARAM_ASQL_PWD": {
+				"type": "string",
+				"defaultValue": "Testingc2s@123"
+			},
+			"PARAM_AZURE_SQL_DATABASE_NAME": {
+				"type": "string",
+				"defaultValue": "PROD_R"
+			},
+			"PARAM_TABLE_NAME": {
+				"type": "string",
+				"defaultValue": "INVENTTRANS"
+			},
+			"PARAM_SCHEMA_NAME": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"PARAM_DATE_COLUMN_NAME": {
+				"type": "String",
+				"defaultValue": "MODIFIEDDATE"
+			},
+			"PARAM_CUT_OFF_DATE": {
+				"type": "String",
+				"defaultValue": "2021-01-01"
+			}
+		},
+		"folder": {
+			"name": "DATA REPLICATION"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-03-06T02:48:07Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

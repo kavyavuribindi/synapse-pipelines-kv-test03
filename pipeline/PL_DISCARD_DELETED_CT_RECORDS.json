@@ -1,0 +1,238 @@
+{
+	"name": "PL_DISCARD_DELETED_CT_RECORDS",
+	"properties": {
+		"activities": [
+			{
+				"name": "LOOK_UP_CT_DELETED_KEYS",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderStoredProcedureName": "[dbo].[sp_get_ct_deleted_keys_with_tblnames]",
+						"storedProcedureParameters": {
+							"CurrentChangeTrackingVersion": {
+								"type": "Int64",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_CURRENT_CT_VERSION",
+									"type": "Expression"
+								}
+							},
+							"LastChangeTrackingVersion": {
+								"type": "Int64",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_LAST_CT_VERSION",
+									"type": "Expression"
+								}
+							},
+							"PrimaryKeys": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_PRIMARY_KEYS",
+									"type": "Expression"
+								}
+							},
+							"SchemaName": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+									"type": "Expression"
+								}
+							},
+							"TableName": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "FOR_EACH_ID",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "LOOK_UP_CT_DELETED_KEYS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('LOOK_UP_CT_DELETED_KEYS').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "SP_DELETE_CT_RECORDS",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[sp_delete_ct_records]",
+								"storedProcedureParameters": {
+									"Key": {
+										"value": {
+											"value": "@item().KEY_VALUE",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"PrimaryKeys": {
+										"value": {
+											"value": "@item().PRIMARY_KEY",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"SchemaName": {
+										"value": {
+											"value": "@item().SCHEMA_NAME",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"TableName": {
+										"value": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_ASQL_DATA_REPLICATION",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"PARAM_LS_AZURE_SQL_USERNAME": {
+										"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+										"type": "Expression"
+									},
+									"PARAM_LS_ASQL_PWD": {
+										"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+										"type": "Expression"
+									},
+									"PARAM_LS_AZURE_SQL_SERVER_NAME": {
+										"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+										"type": "Expression"
+									},
+									"PARAM_LS_AZURE_SQL_DATABASE_NAME": {
+										"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"PARAM_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "localhost"
+			},
+			"PARAM_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "c2suser"
+			},
+			"PARAM_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "C2S@20232023!"
+			},
+			"PARAM_AZURE_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "sqlsvr-kv-test02.database.windows.net"
+			},
+			"PARAM_AZURE_SQL_USERNAME": {
+				"type": "string",
+				"defaultValue": "kvtest02"
+			},
+			"PARAM_ASQL_PWD": {
+				"type": "string",
+				"defaultValue": "Password123"
+			},
+			"PARAM_SCHEMA_NAME": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"PARAM_TABLE_NAME": {
+				"type": "string",
+				"defaultValue": "ADDRESS"
+			},
+			"PARAM_DATABASE_NAME": {
+				"type": "string",
+				"defaultValue": "PROD_R"
+			},
+			"PARAM_CURRENT_CT_VERSION": {
+				"type": "string",
+				"defaultValue": "50"
+			},
+			"PARAM_LAST_CT_VERSION": {
+				"type": "string",
+				"defaultValue": "0"
+			},
+			"PARAM_PRIMARY_KEYS": {
+				"type": "string",
+				"defaultValue": "ItemNum"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-19T23:32:48Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

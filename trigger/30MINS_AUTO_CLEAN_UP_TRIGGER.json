@@ -1,0 +1,31 @@
+{
+	"name": "30MINS_AUTO_CLEAN_UP_TRIGGER",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "PL_AUTO_CLEAN_UP_HISTORY",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"PARAM_SQL_SERVER_NAME": "localhost",
+					"PARAM_SQL_USER_NAME": "c2suser",
+					"PARAM_SQL_PWD": "C2S@20232023!",
+					"PARAM_DATABASE_NAME": "PROD_R",
+					"PARAM_SCHEMA_NAME": "dbo"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 30,
+				"startTime": "2024-01-25T01:05:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}

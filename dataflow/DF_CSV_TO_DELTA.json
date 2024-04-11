@@ -1,0 +1,56 @@
+{
+	"name": "DF_CSV_TO_DELTA",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_TABLE_1",
+						"type": "DatasetReference"
+					},
+					"name": "TABLE1"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "LS_Delta_SAKVTEST03",
+						"type": "LinkedServiceReference"
+					},
+					"name": "TABLE1DELTA"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          CustID as string,",
+				"          CustName as string,",
+				"          Address as string,",
+				"          isActive as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     ignoreNoFilesFound: false) ~> TABLE1",
+				"TABLE1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     fileSystem: 'delta',",
+				"     mergeSchema: true,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> TABLE1DELTA"
+			]
+		}
+	}
+}

@@ -1,0 +1,33 @@
+{
+	"name": "LS_PARAM_AzureSqlDatabase1_YKP",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"PARAM_LS_ASQL_SERVERNAME": {
+				"type": "string",
+				"defaultValue": "test-db-server-01.database.windows.net"
+			},
+			"PARAM_LS_ASQL_DATABASENAME": {
+				"type": "string",
+				"defaultValue": "PROD_R"
+			},
+			"PARAM_LS_ASQL_USERNAME": {
+				"type": "string",
+				"defaultValue": "DEMOUSER"
+			},
+			"PARAM_LS_ASQL_PASSWORD": {
+				"type": "string",
+				"defaultValue": "Testingc2s@123"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().PARAM_LS_ASQL_SERVERNAME};Initial Catalog=@{linkedService().PARAM_LS_ASQL_DATABASENAME};User ID=@{linkedService().PARAM_LS_ASQL_USERNAME};Password=@{linkedService().PARAM_LS_ASQL_PASSWORD}"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

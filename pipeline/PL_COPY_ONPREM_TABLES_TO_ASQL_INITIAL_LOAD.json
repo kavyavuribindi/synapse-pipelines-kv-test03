@@ -1,0 +1,224 @@
+{
+	"name": "PL_COPY_ONPREM_TABLES_TO_ASQL_INITIAL_LOAD",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_LOOK_UP_TABLE_NAMES",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_ADLS_TABLE_NAMES",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_ADLS_CONTAINER_NAME": {
+								"value": "@pipeline().parameters.PARAM_ADLS_CONTAINER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_ADLS_TABLE_NAMES_FILE": {
+								"value": "@pipeline().parameters.PARAM_ADLS_TABLE_NAMES_FILE",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ACT_FOR_EACH_TABLE",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ACT_LOOK_UP_TABLE_NAMES",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ACT_LOOK_UP_TABLE_NAMES').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "ACT_COPY_ONPREM_TABLES_TO_ASQL",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@{item().SCHEMA_NAME}.@{item().TABLE_NAME}"
+								},
+								{
+									"name": "Destination",
+									"value": "@{item().SCHEMA_NAME\r\n}.@{item().TABLE_NAME}"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "AzureSqlSink",
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_SQL_ONPREM",
+									"type": "DatasetReference",
+									"parameters": {
+										"PARAM_DS_SQL_SERVER_NAME": {
+											"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_SQL_DATABASE_NAME": {
+											"value": "@item().DATABASE_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_SQL_USER_NAME": {
+											"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_SQL_PWD": {
+											"value": "@pipeline().parameters.PARAM_SQL_PWD",
+											"type": "Expression"
+										},
+										"PARAM_DS_SCHEMA_NAME": {
+											"value": "@item().SCHEMA_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_TABLE_NAME": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_ASQL_DATA_REPLICATION",
+									"type": "DatasetReference",
+									"parameters": {
+										"PARAM_DS_ASQL_PWD": {
+											"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+											"type": "Expression"
+										},
+										"PARAM_DS_AZURE_SQL_SERVER_NAME": {
+											"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_AZURE_SQL_DATABASE_NAME": {
+											"value": "@item().DATABASE_NAME",
+											"type": "Expression"
+										},
+										"PARAM_DS_AZURE_SQL_USERNAME": {
+											"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+											"type": "Expression"
+										},
+										"DS_SCHEMA_NAME": {
+											"value": "@item().SCHEMA_NAME\r\n",
+											"type": "Expression"
+										},
+										"DS_TABLE_NAME": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"PARAM_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "localhost"
+			},
+			"PARAM_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "c2suser"
+			},
+			"PARAM_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "C2S@20232023!"
+			},
+			"PARAM_ADLS_PARQUET_FOLDER_NAME": {
+				"type": "string",
+				"defaultValue": "parquetfiles"
+			},
+			"PARAM_ADLS_DELTA_FOLDER_NAME": {
+				"type": "string",
+				"defaultValue": "deltafiles"
+			},
+			"PARAM_ADLS_CONTAINER_NAME": {
+				"type": "string",
+				"defaultValue": "tfadlsdatareplicationdev01"
+			},
+			"PARAM_ADLS_TABLE_NAMES_FILE": {
+				"type": "String",
+				"defaultValue": "table_names - Copy.csv"
+			},
+			"PARAM_AZURE_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "sqlsvr-kv-test02.database.windows.net"
+			},
+			"PARAM_AZURE_SQL_USERNAME": {
+				"type": "string",
+				"defaultValue": "kvtest02"
+			},
+			"PARAM_ASQL_PWD": {
+				"type": "string",
+				"defaultValue": "Password123"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-18T01:59:43Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

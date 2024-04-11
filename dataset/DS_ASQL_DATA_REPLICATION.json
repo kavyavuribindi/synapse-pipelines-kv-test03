@@ -1,0 +1,61 @@
+{
+	"name": "DS_ASQL_DATA_REPLICATION",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ASQL_DATA_REPLICATION",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"PARAM_LS_AZURE_SQL_USERNAME": {
+					"value": "@dataset().PARAM_DS_AZURE_SQL_USERNAME",
+					"type": "Expression"
+				},
+				"PARAM_LS_ASQL_PWD": {
+					"value": "@dataset().PARAM_DS_ASQL_PWD",
+					"type": "Expression"
+				},
+				"PARAM_LS_AZURE_SQL_SERVER_NAME": {
+					"value": "@dataset().PARAM_DS_AZURE_SQL_SERVER_NAME",
+					"type": "Expression"
+				},
+				"PARAM_LS_AZURE_SQL_DATABASE_NAME": {
+					"value": "@dataset().PARAM_DS_AZURE_SQL_DATABASE_NAME",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"PARAM_DS_ASQL_PWD": {
+				"type": "string"
+			},
+			"PARAM_DS_AZURE_SQL_SERVER_NAME": {
+				"type": "string"
+			},
+			"PARAM_DS_AZURE_SQL_DATABASE_NAME": {
+				"type": "string"
+			},
+			"PARAM_DS_AZURE_SQL_USERNAME": {
+				"type": "string"
+			},
+			"DS_SCHEMA_NAME": {
+				"type": "String"
+			},
+			"DS_TABLE_NAME": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().DS_SCHEMA_NAME",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().DS_TABLE_NAME",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

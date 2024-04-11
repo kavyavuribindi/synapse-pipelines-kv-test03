@@ -1,0 +1,17 @@
+{
+	"name": "JSCSRRECEIPTMSTR_old",
+	"properties": {
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseDelimitedTextFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseDelimitedTextFormat] \n\tWITH ( FORMAT_TYPE = DELIMITEDTEXT ,\n\t       FORMAT_OPTIONS (\n\t\t\t FIELD_TERMINATOR = ',',\n\t\t\t STRING_DELIMITER = '\"',\n\t\t\t FIRST_ROW = 2,\n\t\t\t USE_TYPE_DEFAULT = FALSE\n\t\t\t))\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'recordchange_sakvtest03_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [recordchange_sakvtest03_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://recordchange@sakvtest03.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE dbo.JSCSRRECEIPTMSTR_old (\n\t[C1] nvarchar(4000),\n\t[C2] nvarchar(4000),\n\t[C3] nvarchar(4000),\n\t[C4] nvarchar(4000),\n\t[C5] nvarchar(4000),\n\t[C6] nvarchar(4000),\n\t[C7] nvarchar(4000),\n\t[C8] nvarchar(4000),\n\t[C9] nvarchar(4000),\n\t[C10] nvarchar(4000),\n\t[C11] nvarchar(4000),\n\t[C12] nvarchar(4000),\n\t[C13] nvarchar(4000),\n\t[C14] nvarchar(4000),\n\t[C15] nvarchar(4000),\n\t[C16] nvarchar(4000),\n\t[C17] nvarchar(4000),\n\t[C18] nvarchar(4000),\n\t[C19] nvarchar(4000),\n\t[C20] nvarchar(4000),\n\t[C21] nvarchar(4000),\n\t[C22] nvarchar(4000),\n\t[C23] nvarchar(4000),\n\t[C24] nvarchar(4000),\n\t[C25] nvarchar(4000),\n\t[C26] nvarchar(4000),\n\t[C27] nvarchar(4000),\n\t[C28] nvarchar(4000),\n\t[C29] nvarchar(4000),\n\t[C30] nvarchar(4000),\n\t[C31] nvarchar(4000),\n\t[C32] nvarchar(4000),\n\t[C33] nvarchar(4000),\n\t[C34] nvarchar(4000),\n\t[C35] nvarchar(4000),\n\t[C36] nvarchar(4000),\n\t[C37] nvarchar(4000),\n\t[C38] nvarchar(4000),\n\t[C39] nvarchar(4000),\n\t[C40] nvarchar(4000),\n\t[C41] nvarchar(4000),\n\t[C42] nvarchar(4000),\n\t[C43] nvarchar(4000),\n\t[C44] nvarchar(4000),\n\t[C45] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'dbo.JSCSRRECEIPTMSTR_2024-01-11T19_16_06.5145146Z.csv',\n\tDATA_SOURCE = [recordchange_sakvtest03_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseDelimitedTextFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.JSCSRRECEIPTMSTR_old\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "externalDB",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

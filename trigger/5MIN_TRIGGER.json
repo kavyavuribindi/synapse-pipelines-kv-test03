@@ -1,0 +1,35 @@
+{
+	"name": "5MIN_TRIGGER",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "v0_2_EXP_INCREMENTAL_COPY_MULTIPLE_TABLES",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"PARAM_SQL_SERVER_NAME": "localhost",
+					"PARAM_SQL_USER_NAME": "c2suser",
+					"PARAM_SQL_PWD": "C2S@20232023!",
+					"PARAM_ADLS_CONTAINER_NAME": "tfadlsdatareplicationdev01",
+					"PARAM_ADLS_TABLE_NAMES_FILE": "table_names - Copy.csv",
+					"PARAM_AZURE_SQL_SERVER_NAME": "sqlsvr-kv-test02.database.windows.net",
+					"PARAM_AZURE_SQL_USERNAME": "kvtest02",
+					"PARAM_ASQL_PWD": "Password123"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 5,
+				"startTime": "2024-01-19T15:10:00",
+				"endTime": "2024-01-19T17:00:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}

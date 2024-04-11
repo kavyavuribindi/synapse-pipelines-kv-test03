@@ -1,0 +1,17 @@
+{
+	"name": "Count_Scripts",
+	"properties": {
+		"content": {
+			"query": "SELECT COUNT(*) FROM dbo.JSCSRRECEIPTDTL_old; - 2462802\n\nSELECT COUNT(*) FROM dbo.JSCSRRECEIPTDTL_new; --2463261\n\nSELECT COUNT(*) FROM dbo.JSCSRRECEIPTMSTR_old; --2268273\n\nSELECT COUNT(*) FROM dbo.JSCSRRECEIPTMSTR_new; --2268516\n\nSELECT COUNT(*) FROM dbo.JSDISPATCHERTRUCKS_old; --2875064\n\nSELECT COUNT(*) FROM dbo.JSDISPATCHERTRUCKS_new; --2875547\n\n------------------------------------------------------\n---------------------ROW COUNT------------------------\n------------------------------------------------------\n--JSCSRRECEIPTDTL--\n\n--JSCSRRECEIPTDTL_old - 1134\n--JSCSRRECEIPTDTL_new - 1593\n\nSELECT 'JSCSRRECEIPTDTL_old', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTDTL_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTDTL_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSCSRRECEIPTDTL_new', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTDTL_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTDTL_old\n)  AS ResultTable;\n\n\n------------------------------------------------------\n--JSCSRRECEIPTMSTR--\n\n--JSCSRRECEIPTMSTR_old - 868\n--JSCSRRECEIPTMSTR_new - 1111\n\nSELECT 'JSCSRRECEIPTMSTR_old', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTMSTR_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTMSTR_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSCSRRECEIPTMSTR_new', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTMSTR_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTMSTR_old\n)  AS ResultTable;\n\n------------------------------------------------------\n--JSDISPATCHERTRUCKS--\n\n--JSDISPATCHERTRUCKS_old - 1397\n--JSDISPATCHERTRUCKS_new - 1880\n\nSELECT 'JSDISPATCHERTRUCKS_old', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSDISPATCHERTRUCKS_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSDISPATCHERTRUCKS_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSDISPATCHERTRUCKS_new', COUNT(*) \nFROM (\n    SELECT * FROM dbo.JSDISPATCHERTRUCKS_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSDISPATCHERTRUCKS_old\n)  AS ResultTable;\n\n\n------------------------------------------------------\n----------------------RECORDS-------------------------\n------------------------------------------------------\n--JSCSRRECEIPTDTL--\n\nSELECT 'JSCSRRECEIPTDTL_old', * \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTDTL_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTDTL_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSCSRRECEIPTDTL_new', *\nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTDTL_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTDTL_old\n)  AS ResultTable;\n\n\n------------------------------------------------------\n--JSCSRRECEIPTMSTR--\n\nSELECT 'JSCSRRECEIPTMSTR_old', * \nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTMSTR_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTMSTR_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSCSRRECEIPTMSTR_new', *\nFROM (\n    SELECT * FROM dbo.JSCSRRECEIPTMSTR_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSCSRRECEIPTMSTR_old\n)  AS ResultTable;\n\n------------------------------------------------------\n--JSDISPATCHERTRUCKS--\n\nSELECT 'JSDISPATCHERTRUCKS_old', * \nFROM (\n    SELECT * FROM dbo.JSDISPATCHERTRUCKS_old\n\tEXCEPT\n\tSELECT * FROM dbo.JSDISPATCHERTRUCKS_new\n)  AS ResultTable\nUNION ALL\nSELECT 'JSDISPATCHERTRUCKS_new', *\nFROM (\n    SELECT * FROM dbo.JSDISPATCHERTRUCKS_new\n\tEXCEPT\n\tSELECT * FROM dbo.JSDISPATCHERTRUCKS_old\n)  AS ResultTable;\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "externalDB",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,284 @@
+{
+	"name": "INCREMENTAL_COPY_SINGLE_TABLE",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_LOOKUP_LAST_CHANGE_TRACKING_VERSION",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_CHANGE_TRACKING_VERSION",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": "PROD_R",
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": "dbo",
+							"PARAM_DS_TABLE_NAME": "CHANGE_TRACKING_VERSION"
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "ACT_LOOKUP_CURRENT_CHANGE_TRACKING_VERSION",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT CHANGE_TRACKING_CURRENT_VERSION() as CurrentChangeTrackingVersion",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": "PROD_R",
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": " ",
+							"PARAM_DS_TABLE_NAME": " "
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "ACT_INCREMENTAL_COPY_SINGLE_TABLE",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ACT_LOOKUP_LAST_CHANGE_TRACKING_VERSION",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ACT_LOOKUP_CURRENT_CHANGE_TRACKING_VERSION",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT \n    --CT.ItemNum AS CT_ItemNum,\n       P.*\n    --CT.SYS_CHANGE_VERSION, \n    --SYS_CHANGE_OPERATION \nFROM dbo.[ADDRESS] AS P \nRIGHT OUTER JOIN CHANGETABLE(CHANGES dbo.[ADDRESS], @{activity('ACT_LOOKUP_LAST_CHANGE_TRACKING_VERSION').output.firstRow.SYS_CHANGE_VERSION}) AS CT \n    ON P.ItemNum = CT.ItemNum \nwhere CT.SYS_CHANGE_VERSION <= @{activity('ACT_LOOKUP_CURRENT_CHANGE_TRACKING_VERSION').output.firstRow.CurrentChangeTrackingVersion}\n\n\n",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"ItemNum"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": "PROD_R",
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": "dbo",
+							"PARAM_DS_TABLE_NAME": "ADDRESS"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ASQL_DATA_REPLICATION",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_ASQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_ASQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_AZURE_SQL_DATABASE_NAME": "PROD_R",
+							"PARAM_DS_AZURE_SQL_USERNAME": {
+								"value": "@pipeline().parameters.PARAM_AZURE_SQL_USERNAME",
+								"type": "Expression"
+							},
+							"DS_SCHEMA_NAME": "dbo",
+							"DS_TABLE_NAME": "ADDRESS"
+						}
+					}
+				]
+			},
+			{
+				"name": "SP_TO_UPDATE_CHANGE_TRACKING_VERSION",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "ACT_INCREMENTAL_COPY_SINGLE_TABLE",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[Update_ChangeTracking_Version]",
+					"storedProcedureParameters": {
+						"CurrentTrackingVersion": {
+							"value": {
+								"value": "@{activity('ACT_LOOKUP_CURRENT_CHANGE_TRACKING_VERSION').output.firstRow.CurrentChangeTrackingVersion}",
+								"type": "Expression"
+							},
+							"type": "Int64"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_ONPREM",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"PARAM_LS_SQL_SERVER_NAME": "localhost",
+						"PARAM_LS_SQL_DATABASE_NAME": "PROD_R",
+						"PARAM_LS_SQL_USER_NAME": "c2suser",
+						"PARAM_LS_SQL_PWD": "C2S@20232023!"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"PARAM_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "localhost"
+			},
+			"PARAM_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "c2suser"
+			},
+			"PARAM_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "C2S@20232023!"
+			},
+			"PARAM_ADLS_PARQUET_FOLDER_NAME": {
+				"type": "string",
+				"defaultValue": "parquetfiles"
+			},
+			"PARAM_ADLS_DELTA_FOLDER_NAME": {
+				"type": "string",
+				"defaultValue": "deltafiles"
+			},
+			"PARAM_ADLS_CONTAINER_NAME": {
+				"type": "string",
+				"defaultValue": "tfadlsdatareplicationdev01"
+			},
+			"PARAM_ADLS_TABLE_NAMES_FILE": {
+				"type": "String",
+				"defaultValue": "table_names.csv"
+			},
+			"PARAM_AZURE_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "sqlsvr-kv-test02.database.windows.net"
+			},
+			"PARAM_AZURE_SQL_USERNAME": {
+				"type": "string",
+				"defaultValue": "kvtest02"
+			},
+			"PARAM_ASQL_PWD": {
+				"type": "string",
+				"defaultValue": "Password123"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-01-17T02:21:58Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

@@ -1,0 +1,398 @@
+{
+	"name": "PL_100RECS_AUTO_INSERT_UPDATE_DELETE",
+	"properties": {
+		"activities": [
+			{
+				"name": "ACT_INSERT_1_ROW",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": "SELECT * from INVENTLOCATION WHERE 1 = 0",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"preCopyScript": {
+							"value": "@concat('INSERT INTO dbo.[INVENTLOCATION] (ColorCode, Color) VALUES (''CC0_', pipeline().RunId, '_1'', ''INSERTED_RECORD''); ',\n        'INSERT INTO dbo.[INVENTLOCATION] (ColorCode, Color) VALUES (''CC0_', pipeline().RunId, '_2'', ''INSERTED_RECORD'');')\n",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": " ",
+							"PARAM_DS_TABLE_NAME": " "
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "LOOKUP_RANDOM_KEY_TO_DELETE_RECORD",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "ACT_INSERT_1_ROW",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT TOP 1 ColorCode FROM ',\npipeline().parameters.PARAM_SCHEMA_NAME,\n'.',\npipeline().parameters.PARAM_TABLE_NAME,\n' ORDER BY NEWID();')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "SP_DELETE_ROW_BY_KEY",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LOOKUP_RANDOM_KEY_TO_DELETE_RECORD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[SP_DeleteRowByKey]",
+					"storedProcedureParameters": {
+						"KEY": {
+							"value": {
+								"value": "@activity('LOOKUP_RANDOM_KEY_TO_DELETE_RECORD').output.firstRow.ColorCode",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SCHEMA_NAME": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TABLE_NAME": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_ONPREM",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"PARAM_LS_SQL_SERVER_NAME": {
+							"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_DATABASE_NAME": {
+							"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_USER_NAME": {
+							"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_PWD": {
+							"value": "@pipeline().parameters.PARAM_SQL_PWD",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "LOOKUP_RANDOM_KEY_TO_UPDATE_RECORD",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "SP_DELETE_ROW_BY_KEY",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT TOP 1 ColorCode FROM ',\npipeline().parameters.PARAM_SCHEMA_NAME,\n'.',\npipeline().parameters.PARAM_TABLE_NAME,\n' ORDER BY NEWID();')",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SQL_ONPREM",
+						"type": "DatasetReference",
+						"parameters": {
+							"PARAM_DS_SQL_SERVER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_DATABASE_NAME": {
+								"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_USER_NAME": {
+								"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_SQL_PWD": {
+								"value": "@pipeline().parameters.PARAM_SQL_PWD",
+								"type": "Expression"
+							},
+							"PARAM_DS_SCHEMA_NAME": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"PARAM_DS_TABLE_NAME": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "SP_UPDATE_ROW_BY_KEY",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "LOOKUP_RANDOM_KEY_TO_UPDATE_RECORD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[SP_UpdateRowByKey]",
+					"storedProcedureParameters": {
+						"KEY": {
+							"value": {
+								"value": "@activity('LOOKUP_RANDOM_KEY_TO_UPDATE_RECORD').output.firstRow.ColorCode",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"NEW_COLOR": {
+							"value": {
+								"value": "@concat('UPDATED_RECORD_',pipeline().RunId)",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"SCHEMA_NAME": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_SCHEMA_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"TABLE_NAME": {
+							"value": {
+								"value": "@pipeline().parameters.PARAM_TABLE_NAME",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_ONPREM",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"PARAM_LS_SQL_SERVER_NAME": {
+							"value": "@pipeline().parameters.PARAM_SQL_SERVER_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_DATABASE_NAME": {
+							"value": "@pipeline().parameters.PARAM_DATABASE_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_USER_NAME": {
+							"value": "@pipeline().parameters.PARAM_SQL_USER_NAME",
+							"type": "Expression"
+						},
+						"PARAM_LS_SQL_PWD": {
+							"value": "@pipeline().parameters.PARAM_SQL_PWD",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"PARAM_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "Sqlserver-onpre"
+			},
+			"PARAM_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "demouser"
+			},
+			"PARAM_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "Testingc2s@123"
+			},
+			"PARAM_DATABASE_NAME": {
+				"type": "string",
+				"defaultValue": "HR"
+			},
+			"PARAM_SCHEMA_NAME": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"PARAM_TABLE_NAME": {
+				"type": "string",
+				"defaultValue": "INVENTLOCATION"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-01T20:16:56Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

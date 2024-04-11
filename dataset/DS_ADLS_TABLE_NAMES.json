@@ -1,0 +1,51 @@
+{
+	"name": "DS_ADLS_TABLE_NAMES",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SAKVTEST03",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"PARAM_DS_ADLS_CONTAINER_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_ADLS_TABLE_NAMES_FILE": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().PARAM_DS_ADLS_TABLE_NAMES_FILE",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().PARAM_DS_ADLS_CONTAINER_NAME",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "database_name",
+				"type": "String"
+			},
+			{
+				"name": "schema_name",
+				"type": "String"
+			},
+			{
+				"name": "table_name",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

@@ -1,0 +1,45 @@
+{
+	"name": "DS_ADLS_DATA_REPLICATION",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_DATA_REPLICATION",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"PARAM_DS_ADLS_CONTAINER_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_ADLS_PARQUET_FOLDER_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_ADLS_FILE_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_ADLS_DB_FOLDER_NAME": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(dataset().PARAM_DS_ADLS_FILE_NAME,'.parquet')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat(dataset().PARAM_DS_ADLS_PARQUET_FOLDER_NAME,'/',dataset().PARAM_DS_ADLS_DB_FOLDER_NAME,'/',dataset().PARAM_DS_ADLS_FILE_NAME)",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().PARAM_DS_ADLS_CONTAINER_NAME",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

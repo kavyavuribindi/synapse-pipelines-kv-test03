@@ -1,0 +1,29 @@
+{
+	"name": "LS_ASQL_DATA_REPLICATION",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"PARAM_LS_AZURE_SQL_USERNAME": {
+				"type": "string"
+			},
+			"PARAM_LS_ASQL_PWD": {
+				"type": "string"
+			},
+			"PARAM_LS_AZURE_SQL_SERVER_NAME": {
+				"type": "string"
+			},
+			"PARAM_LS_AZURE_SQL_DATABASE_NAME": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().PARAM_LS_AZURE_SQL_SERVER_NAME};Initial Catalog=@{linkedService().PARAM_LS_AZURE_SQL_DATABASE_NAME};User ID=@{linkedService().PARAM_LS_AZURE_SQL_USERNAME};Password=@{linkedService().PARAM_LS_ASQL_PWD}"
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,61 @@
+{
+	"name": "DS_CHANGE_TRACKING_VERSION",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQL_ONPREM",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"PARAM_LS_SQL_SERVER_NAME": {
+					"value": "@dataset().PARAM_DS_SQL_SERVER_NAME",
+					"type": "Expression"
+				},
+				"PARAM_LS_SQL_DATABASE_NAME": {
+					"value": "@dataset().PARAM_DS_SQL_DATABASE_NAME",
+					"type": "Expression"
+				},
+				"PARAM_LS_SQL_USER_NAME": {
+					"value": "@dataset().PARAM_DS_SQL_USER_NAME",
+					"type": "Expression"
+				},
+				"PARAM_LS_SQL_PWD": {
+					"value": "@dataset().PARAM_DS_SQL_PWD",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"PARAM_DS_SQL_SERVER_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_SQL_DATABASE_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_SQL_USER_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_SQL_PWD": {
+				"type": "String"
+			},
+			"PARAM_DS_SCHEMA_NAME": {
+				"type": "String"
+			},
+			"PARAM_DS_TABLE_NAME": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().PARAM_DS_SCHEMA_NAME",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().PARAM_DS_TABLE_NAME",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

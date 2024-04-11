@@ -1,0 +1,28 @@
+{
+	"name": "LS_LOCALSERVER",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"dbName": {
+				"type": "string"
+			},
+			"userName": {
+				"type": "string"
+			},
+			"password": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "Integrated Security=True;Data Source=localhost;Initial Catalog=@{linkedService().dbName}",
+			"userName": "@{linkedService().userName}",
+			"password": "@{linkedService().password}"
+		},
+		"connectVia": {
+			"referenceName": "SHIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,375 @@
+{
+	"name": "DS_AzureSqlTable1_YKP",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AZURESQL_YKP",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ITEMID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "STATUSISSUE",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "INTERCOMPANYINVENTDIMTRANSFER3",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DATEPHYSICAL",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "QTY",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "COSTAMOUNTPOSTED",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "CURRENCYCODE",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TRANSTYPE",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TRANSREFID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "INVOICEID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "VOUCHER",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DATEEXPECTED",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DATEFINANCIAL",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "COSTAMOUNTPHYSICAL",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "INVENTTRANSID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "STATUSRECEIPT",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PACKINGSLIPRETURNED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "INVOICERETURNED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "PACKINGSLIPID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "VOUCHERPHYSICAL",
+				"type": "nvarchar"
+			},
+			{
+				"name": "COSTAMOUNTADJUSTMENT",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "SHIPPINGDATEREQUESTED",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "SHIPPINGDATECONFIRMED",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "QTYSETTLED",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "COSTAMOUNTSETTLED",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "VALUEOPEN",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DIRECTION",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DATESTATUS",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "COSTAMOUNTSTD",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "DATECLOSED",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "INVENTTRANSIDFATHER",
+				"type": "nvarchar"
+			},
+			{
+				"name": "COSTAMOUNTOPERATIONS",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "ITEMROUTEID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ITEMBOMID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "INVENTTRANSIDRETURN",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PROJID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PROJCATEGORYID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "INVENTDIMID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "INVENTDIMFIXED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "DATEINVENT",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CUSTVENDAC",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TRANSCHILDREFID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TRANSCHILDTYPE",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "TIMEEXPECTED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "REVENUEAMOUNTPHYSICAL",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "PROJADJUSTREFID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "TAXAMOUNTPHYSICAL",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "INVENTREFTRANSID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "JSDUALUNITQTY",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSPOTENCIES",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSPOTENCIES2_",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSINVENTRECONCILED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "JSCLEARED",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "JSQTYRECONCILED",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSPOTENCIESRECONCILED",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSPOTENCIESRECONCILED2_",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "JSCLEAREDBY",
+				"type": "nvarchar"
+			},
+			{
+				"name": "JSRECONCILEDBY",
+				"type": "nvarchar"
+			},
+			{
+				"name": "JSRECONCILEJOURNALID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "DEL_JSPOTENCY",
+				"type": "decimal",
+				"precision": 28,
+				"scale": 12
+			},
+			{
+				"name": "DATAAREAID",
+				"type": "nvarchar"
+			},
+			{
+				"name": "RECVERSION",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "RECID",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "MODIFIEDDATE",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "MODIFIEDTIME",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "MODIFIEDBY",
+				"type": "nvarchar"
+			},
+			{
+				"name": "JSTIMEPHYSICAL",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "JSTIMEINVENT",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "SYS_CHANGE_VERSION",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "SyncServiceLastModifiedDateUTC",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "DataSyncLastModifiedBy",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "INVENTTRANS"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

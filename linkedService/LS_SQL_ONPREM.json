@@ -1,0 +1,34 @@
+{
+	"name": "LS_SQL_ONPREM",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"parameters": {
+			"PARAM_LS_SQL_SERVER_NAME": {
+				"type": "string",
+				"defaultValue": "localhost"
+			},
+			"PARAM_LS_SQL_DATABASE_NAME": {
+				"type": "string"
+			},
+			"PARAM_LS_SQL_USER_NAME": {
+				"type": "string",
+				"defaultValue": "c2suser"
+			},
+			"PARAM_LS_SQL_PWD": {
+				"type": "string",
+				"defaultValue": "C2S@20232023!"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "Integrated Security=True;Data Source=@{linkedService().PARAM_LS_SQL_SERVER_NAME};Initial Catalog=@{linkedService().PARAM_LS_SQL_DATABASE_NAME}",
+			"userName": "@{linkedService().PARAM_LS_SQL_USER_NAME}",
+			"password": "@{linkedService().PARAM_LS_SQL_PWD}"
+		},
+		"connectVia": {
+			"referenceName": "FDRSHIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

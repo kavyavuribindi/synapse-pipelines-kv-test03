@@ -1,0 +1,42 @@
+{
+	"name": "DS_PARQUET_SAKVTEST03",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SAKVTEST03",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"container_name": {
+				"type": "String"
+			},
+			"file_name": {
+				"type": "String"
+			},
+			"parquet_folder_name": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@concat(dataset().file_name,'.parquet')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat(dataset().parquet_folder_name,'/',dataset().file_name)",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().container_name",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

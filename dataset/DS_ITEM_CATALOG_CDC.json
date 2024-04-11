@@ -1,0 +1,54 @@
+{
+	"name": "DS_ITEM_CATALOG_CDC",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_LOCALSERVER",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"dbName": {
+					"value": "@dataset().dbName",
+					"type": "Expression"
+				},
+				"userName": {
+					"value": "@dataset().userName",
+					"type": "Expression"
+				},
+				"password": {
+					"value": "@dataset().password",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"dbName": {
+				"type": "String"
+			},
+			"userName": {
+				"type": "String"
+			},
+			"password": {
+				"type": "String"
+			},
+			"schemaName": {
+				"type": "String"
+			},
+			"tableName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schemaName",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tableName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
